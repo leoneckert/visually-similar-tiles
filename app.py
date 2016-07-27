@@ -1,7 +1,9 @@
 import os
 import argparse
-import cv2
+from imgurpython import ImgurClient
+from PIL import Image
 import Tiles as t
+import requests
 
 # construct the argument parser and parse the arguments
 ap = argparse.ArgumentParser()
@@ -13,20 +15,22 @@ args = vars(ap.parse_args())
 if __name__ == '__main__':
 
 
-    # load the image and show it
-    image = cv2.imread(args["image"])
-    # cv2.imshow("Original", image)
+    # image = cv2.imread(args["image"])
+    image = Image.open(args["image"])
+    print type(image)
+    print image
     columns = args["columns"]
     rows = args["rows"] 
 
-
-
-
     tiles = t.Tiles(image, columns, rows)
+    
     tiles.open_all()
     cv2.waitKey(0)
 
 
 
-
-
+get_image(image_id)
+upload_from_path(path, config=None, anon=True)
+upload_from_url(url, config=None, anon=True)
+delete_image(image_id)
+favorite_image(image_id)
