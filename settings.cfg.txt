@@ -1,0 +1,8 @@
+# settings.cfg
+
+# insert your imgur data below
+
+[imgur]
+client_id = 
+client_secret = 
+

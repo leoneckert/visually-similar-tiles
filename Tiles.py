@@ -44,16 +44,6 @@ class Tile:
             print(e.error_message)
             print(e.status_code)
 
-
-
-    # def delete_imgur(self, client):
-    #     try:
-    #         print client.delete_image(self.imgur_id)
-    #         print "[+] DELETED", self.name, "FROM imgur with link", self.link, "and id", self.imgur_id
-    #     except:
-    #         pass
-    #         print "[-] problems deleting", self.name, "FROM imgur with link", self.link, "and id", self.imgur_id
-  
 class Tiles(object):
     """docstring for Tiles"""
     def __init__(self, image, columns, rows):
@@ -96,9 +86,6 @@ class Tiles(object):
         for tile in self.tiles:
             tile.upload_imgur(client)
 
-    # def delete_imgur(self, client):
-    #     for tile in self.tiles:
-    #         tile.delete_imgur(client)
 
     def process(self):
         base_url = 'https://yandex.ru/images/search?rpt=imageview&img_url='
