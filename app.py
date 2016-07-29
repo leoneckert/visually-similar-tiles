@@ -37,11 +37,6 @@ if __name__ == '__main__':
     # tiles.open_all()
     # cv2.waitKey(0)
 
-    
-
-
-
-    
     client = ImgurClient(client_id, client_secret)
 
     tiles.save_temp()
@@ -57,21 +52,3 @@ if __name__ == '__main__':
     tiles.remove_temp()
 
 
-
-
-# client_id = 'YOUR CLIENT ID'
-# client_secret = 'YOUR CLIENT SECRET'
-
-# client = ImgurClient(client_id, client_secret)
-
-# get_image(image_id)
-# upload_from_path(path, config=None, anon=True)
-# upload_from_url(url, config=None, anon=True)
-# delete_image(image_id)
-# favorite_image(image_id)
-
-
-
-    # configDomain = config.get('google','domain')
-    # configEmail = config.get('google','email')
-    # configPass = config.get('google','psswrd')
