@@ -34,21 +34,21 @@ if __name__ == '__main__':
 
     tiles = t.Tiles(image, columns, rows)
     
+    
     # tiles.open_all()
     # cv2.waitKey(0)
 
-    client = ImgurClient(client_id, client_secret)
+    # client = ImgurClient(client_id, client_secret)
 
-    tiles.save_temp()
-    tiles.upload_imgur(client)
+    # tiles.save_temp()
+    # tiles.upload_imgur(client)
     
-
-    tiles.process()
-
-
-    # tiles.delete_imgur(client)
+    tiles.random_red()
+    # tiles.process()
 
 
-    tiles.remove_temp()
+    tiles.save_output()
+
+    # tiles.remove_temp()
 
 

@@ -1,24 +1,40 @@
-import PIL
+from PIL import Image
 import os
 from bs4 import BeautifulSoup
 import urllib2
+import io
+import random
+import math
 
 class Tile:
     """docstring for Tile"""
-    def __init__(self, image, xidx, yidx, idx):
+    def __init__(self, image, xidx, yidx, idx, tile_pixels):
         self.im = image
         self.xidx = xidx
         self.yidx = yidx
         self.idx = idx
         self.name = "tile_" + str(idx)
+        self.pixels = tile_pixels
         
         self.path = None
         self.upload_data = None
         self.imgur_id = None
         self.link = None
+        self.similar_links = None
+        self.similar_image = None
 
     def show(self):
         self.im.show()
+
+    def download_similar(self, random = False):
+        fd = urllib2.urlopen(self.similar_links[0])
+        image_file = io.BytesIO(fd.read())
+        self.similar_image = Image.open(image_file)
+
+    def show_similar(self):
+        self.similar_image.show()
+
+
 
     def save_temp(self, path="data/temp"):
         self.path = os.path.join(path, self.name+".jpg")
@@ -53,24 +69,50 @@ class Tiles(object):
         self.image_w = image.size[0]
         self.image_h = image.size[1]
         self.tile_w = self.image_w/columns
+        print self.image_w 
+        print columns
+        print (self.image_w % columns)
+
         self.tile_h = self.image_h/rows
         self.tiles = self.init_tiles()
 
     def init_tiles(self):
         tiles_out = list()
         idx = 0
+
         for y in range(self.rows):
             for x in range(self.columns):
-                y_pos = (y*self.tile_h)
-                x_pos = (x*self.tile_w)                  
-                tile = self.image.crop(( x_pos,y_pos, x_pos+self.tile_w,   y_pos+self.tile_h  ))
-                tiles_out.append( Tile( tile, x, y, idx))
+                # this is a workaround to get rif of a werid one pixel gap 
+                # between tiles when changing their pixel values
+                h = self.tile_h
+                w = self.tile_w
+                y_pos = (y*h) - 1
+                h += 2
+                x_pos = (x*w) - 1
+                w += 2
+
+                pix_count = 0
+                tile_pixels = list()
+                # for xx in range(self.image_w):
+                for yy in range(self.image_h):
+                    for xx in range(self.image_w):
+                        if xx > x_pos and xx < x_pos+w and yy > y_pos and yy < y_pos+h:
+                            tile_pixels.append(pix_count)
+                        pix_count += 1
+
+                tile = self.image.crop(( x_pos,y_pos, x_pos+w, y_pos+h))
+                tiles_out.append( Tile( tile, x, y, idx, tile_pixels))
                 idx += 1
         return tiles_out
 
     def open_all(self):
         for tile in self.tiles:
             tile.show()
+
+    def save_output(self, path="data/temp", name="visually_similar_mosaic"):
+        path = os.path.join(path, name+".jpg")
+        self.image.save(path)
+        print "[+] Saved", name+".jpg", "at", path
 
     def save_temp(self, path="data/temp"):
         if not os.path.isdir(path):
@@ -95,17 +137,43 @@ class Tiles(object):
             soup = BeautifulSoup(html, 'html.parser')
             
             imgs = soup.find_all('img')
-            similar_imgs = list()
+            tile.similar_links = list()
             for img in imgs:
                 try:
                     if 'similar__image' in img['class']:
                         similar_img = "https:"+str(img['src'])
-                        similar_imgs.append(similar_img)
+                        tile.similar_links.append(similar_img)
                 except KeyError:
                     print "no class here"
                     pass
-            print similar_imgs
+            # print similar_imgs
+            # tile.similar_links = similar_imgs
+            print tile.similar_links
+            tile.download_similar()
+            tile.show_similar()
+
             break
+
+    
+
+    def random_red(self):
+        pix_val = list(self.image.getdata())
+
+        for tile in self.tiles:
+            print tile.pixels[0]
+            print tile.pixels[-1]
+            if random.random() < 0.5:
+                # tile.red()
+
+                for pix in tile.pixels:
+                    pix_val[pix] = (255,0,0)
+
+
+        self.image.putdata(pix_val)
+
+
+
+
 
 
 
