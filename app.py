@@ -32,16 +32,11 @@ if __name__ == '__main__':
     rows = args["rows"] 
 
     tiles = t.Tiles(image, columns, rows)
-    
-    # tiles.open_all()
-    # cv2.waitKey(0)
 
     client = ImgurClient(client_id, client_secret)
 
     tiles.save_temp()
     tiles.upload_imgur(client)
-    
-
     
     tiles.process()
 

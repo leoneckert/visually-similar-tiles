@@ -7,6 +7,8 @@ import random
 import math
 from imgurpython.helpers.error import ImgurClientError
 
+import re
+
 class Tile:
     """docstring for Tile"""
     def __init__(self, image, idx, tile_pixels):
@@ -40,37 +42,40 @@ class Tile:
 
     def download_similar(self, random = False):
         for i in range(len(self.similar_links)):
-            fd = urllib2.urlopen(self.similar_links[0])
-            image_file = io.BytesIO(fd.read())
-            self.similar_image = Image.open(image_file)
-            w = self.similar_image.size[0]
-            h = self.similar_image.size[1]
+            try:
+                fd = urllib2.urlopen(self.similar_links[0])
+                image_file = io.BytesIO(fd.read())
+                self.similar_image = Image.open(image_file)
+                w = self.similar_image.size[0]
+                h = self.similar_image.size[1]
 
-            
+                
 
-            # print "size :", self.similar_image.size[0], self.similar_image.size[1]
-            factor = 1.01
-            while self.similar_image.size[0] < self.im.size[0] or self.similar_image.size[1] < self.im.size[1]:
-                size = int(w*factor), int(h*factor)
-                self.similar_image = self.similar_image.resize(size, Image.ANTIALIAS)
-                factor += 0.01
-            # print "size :", self.similar_image.size[0], self.similar_image.size[1] 
-            
+                # print "size :", self.similar_image.size[0], self.similar_image.size[1]
+                factor = 1.01
+                while self.similar_image.size[0] < self.im.size[0] or self.similar_image.size[1] < self.im.size[1]:
+                    size = int(w*factor), int(h*factor)
+                    self.similar_image = self.similar_image.resize(size, Image.ANTIALIAS)
+                    factor += 0.01
+                # print "size :", self.similar_image.size[0], self.similar_image.size[1] 
+                
 
 
-            path = os.path.join("data/temp", self.name+"_vs.jpg")
-            self.similar_image.save(path) 
+                path = os.path.join("data/temp", self.name+"_vs.jpg")
+                self.similar_image.save(path) 
 
-            w = self.similar_image.size[0]
-            h = self.similar_image.size[1]
-            x_pos = (w/2) - (self.im.size[0]/2)
-            y_pos = (h/2) - (self.im.size[1]/2)
-            crop_region = self.similar_image.crop((  x_pos ,  y_pos , x_pos+self.im.size[0], y_pos+self.im.size[1]))
-            path = os.path.join("data/temp", self.name+"_vs2.jpg")
-            crop_region.save(path) 
-            self.new_pixels = list(crop_region.getdata())
+                w = self.similar_image.size[0]
+                h = self.similar_image.size[1]
+                x_pos = (w/2) - (self.im.size[0]/2)
+                y_pos = (h/2) - (self.im.size[1]/2)
+                crop_region = self.similar_image.crop((  x_pos ,  y_pos , x_pos+self.im.size[0], y_pos+self.im.size[1]))
+                path = os.path.join("data/temp", self.name+"_vs2.jpg")
+                crop_region.save(path) 
+                self.new_pixels = list(crop_region.getdata())
 
-            break
+                break
+            except:
+                pass
 
 
     def show_similar(self):
@@ -154,7 +159,7 @@ class Tiles(object):
 
     def process(self):
         base_url = 'https://yandex.ru/images/search?rpt=imageview&img_url='
-        for tile in random.sample(self.tiles, 5):
+        for tile in self.tiles:
             try:
                 url = base_url + tile.link
                 html = urllib2.urlopen(url).read()
@@ -162,17 +167,18 @@ class Tiles(object):
                 
                 imgs = soup.find_all('img')
                 tile.similar_links = list()
-                for img in imgs:
+
+                for img in soup.findAll('img', attrs={'class': re.compile(r".*\bsimilar__image\b.*")}):
+                # for img in imgs:
                     try:
-                        if 'similar__image' in img['class']:
-                            similar_img = "https:"+str(img['src'])
-                            tile.similar_links.append(similar_img)
+                        # if 'similar__image' in img['class']:
+                        similar_img = "https:"+str(img['src'])
+                        tile.similar_links.append(similar_img)
+                        print "added link"
                     except KeyError:
-                        print "no class here"
+                        print "this is an error, why?"
                         pass
-                # print similar_imgs
-                # tile.similar_links = similar_imgs
-                print tile.similar_links
+
                 tile.download_similar()
             except:
                 pass
